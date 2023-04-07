@@ -1,6 +1,31 @@
 import { useState, useEffect } from 'react'
 import personService from "./services/persons"
+import "./index.css"
 
+
+const Notification = ({ message }) => {
+  if (message === null) {
+    return null
+  }
+
+  return (
+    <div className="success">
+      {message}
+    </div>
+  )
+}
+
+const Error = ({ message }) => {
+  if (message === null) {
+    return null
+  }
+
+  return (
+    <div className="error">
+      {message}
+    </div>
+  )
+}
 
 const Filter = (props) => {
   return (
@@ -44,6 +69,8 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [newFilter, setNewFilter] = useState("")
   const [acceptedPersons, setAcceptedPersons] = useState([])
+  const [notificationMessage, setNotificationMessage] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
 
 
   const addPerson = (event) => {
@@ -55,7 +82,6 @@ const App = () => {
 
     if (persons.map(person => person.name).includes(newName)) {
       const oldPerson = (persons.find(person => person.name === newName))
-      console.log(oldPerson)
       const choice = window.confirm(`${newName} is already added to phonebook, replace their old number with a new one?`)
       if (choice) {
         changeNumber(oldPerson.id, person)
@@ -67,12 +93,32 @@ const App = () => {
       setPersons(persons.concat(person))
       setNewName("")
       setNewNumber("")
+      setNotificationMessage(`Added ${person.name}`)
+      setTimeout(() => {
+        setNotificationMessage(null)
+      }, 5000)
     }
   }
 
   const changeNumber = (id, newPerson) => {
     personService.changePerson(id, newPerson)
-      .then(response => setPersons(persons.map(person => person.id != id ? person : newPerson)))
+      .then(_response => {
+        setPersons(persons.map(person => person.id != id ? person : newPerson))
+        setNotificationMessage(`Changed ${newPerson.name}'s number`)
+        setTimeout(() => {
+          setNotificationMessage(null)
+        }, 5000)
+      }
+      )
+      .catch(_error => {
+        setErrorMessage(`${newPerson.name} has been deleted from the server`)
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 5000)
+        setPersons(persons.map(person => person.id !== id))
+        return null
+      })
+
   }
 
   const handleNameChange = (event) => {
@@ -92,11 +138,16 @@ const App = () => {
   }
 
   const deletePerson = id => {
+    const deletedPerson = persons.find(person => person.id === id)
     const choice = window.confirm("Are you sure?")
     if (choice) {
       personService.deletePerson(id)
-        .then(response => {
-          setPersons(persons.filter(person => person.id != id))
+        .then(_response => {
+          setPersons(persons.filter(person => person !== deletedPerson))
+          setNotificationMessage(`Deleted ${deletedPerson.name}`)
+          setTimeout(() => {
+            setNotificationMessage(null)
+          }, 5000)
         })
     }
   }
@@ -116,6 +167,8 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={notificationMessage} />
+      <Error message={errorMessage} />
       <Filter onChange={handleFilterChange} value={newFilter} />
       <h2>Add new person</h2>
       <AddPerson
