@@ -20,5 +20,5 @@ const changePerson = (id, newPerson) => {
     return axios.put(url, newPerson)
 }
 
-
-export default { createPerson: createPerson, getPersons: getPersons, deletePerson: deletePerson, changePerson: changePerson }
+const personsService = { createPerson: createPerson, getPersons: getPersons, deletePerson: deletePerson, changePerson: changePerson }
+export default personsService

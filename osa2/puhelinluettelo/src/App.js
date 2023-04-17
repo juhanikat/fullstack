@@ -89,21 +89,23 @@ const App = () => {
     }
     else {
       personService.createPerson(person)
-        .then(response => console.log(response))
-      setPersons(persons.concat(person))
-      setNewName("")
-      setNewNumber("")
-      setNotificationMessage(`Added ${person.name}`)
-      setTimeout(() => {
-        setNotificationMessage(null)
-      }, 5000)
+        .then(_response => {
+          setPersons(persons.concat(person))
+          setNewName("")
+          setNewNumber("")
+          setNotificationMessage(`Added ${person.name}`)
+          setTimeout(() => {
+            setNotificationMessage(null)
+          }, 5000)
+        })
+
     }
   }
 
   const changeNumber = (id, newPerson) => {
     personService.changePerson(id, newPerson)
       .then(_response => {
-        setPersons(persons.map(person => person.id != id ? person : newPerson))
+        setPersons(persons.map(person => person.id !== id ? person : newPerson))
         setNotificationMessage(`Changed ${newPerson.name}'s number`)
         setTimeout(() => {
           setNotificationMessage(null)
@@ -122,7 +124,7 @@ const App = () => {
   }
 
   const handleNameChange = (event) => {
-    setNewName(event.target.value)
+    setNewName(event.target.value.trim())
   }
 
   const handleNumberChange = (event) => {

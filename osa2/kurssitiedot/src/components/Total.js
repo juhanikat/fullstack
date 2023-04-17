@@ -3,7 +3,7 @@ const Total = ({ parts }) => {
     const total = exercises.reduce((acc, current) => acc + current)
     return (
         <>
-            <p>Number of exercises {total}</p>
+            <b>Total number of exercises: {total}</b>
         </>
     )
 }
